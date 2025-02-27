@@ -27,7 +27,7 @@ if uploaded_file:
     for file in uploaded_file:
         file_ext = os.path.splitext(file.name)[-1].lower()
 
-        if file_ext == ".cvs":
+        if file_ext == ".csv":
             df = pd.read_csv(file)
         elif file_ext == ".xlsx":
             df = pd.read_excel(file)
@@ -37,24 +37,24 @@ if uploaded_file:
 
 #File details
 st.write("🔍 Preview the head of the DataFrame")
-st.dataframe(df.head())     
+st.dataframe(df.head())
+                
 
 #data cleaning
 st.subheader("© Data Cleaning Options")
-if st.checkbox(f"clean data for {file.name}"):
- col1, col2 = st.columns(2)
+if st.checkbox(f"Clean data for {file.name}", key=f"clean_{file.name}"):
+            col1, col2 = st.columns(2)
 
-with col1 :
-    if st.button(f"removed dublicate the file : {file.name}"):
-        df.drop_duplicates(inplace=True)
-st.write("✅ Duplicates removed!")
+            with col1:
+                if st.button(f"Remove duplicates in {file.name}", key=f"dup_{file.name}"):
+                    df.drop_duplicates(inplace=True)
+                    st.write("✅ Duplicates removed!")
 
-with col2:
-         if st.button(f"Fill missing values for {file.name}"):
-             numeric_cols = df.select_dtypes(include=["number"]).columns
-             df[numeric_cols] = df[numeric_cols].fillna(df[numeric_cols].mean())
-st.write("✅ Missing values filled")
-
+            with col2:
+                if st.button(f"Fill missing values for {file.name}", key=f"fill_{file.name}"):
+                    numeric_cols = df.select_dtypes(include=["number"]).columns
+                    df[numeric_cols] = df[numeric_cols].fillna(df[numeric_cols].mean())
+                    st.write("✅ Missing values filled")
 
 st.subheader("🔘 Select Colums to Keep")
 columns = st.multiselect(f"Choose columns for {file.name}", df.columns, default=df.columns)
@@ -75,7 +75,7 @@ conversion_type = st.radio(f"Convert {file.name} to:", ["CSV" , "Excel"], key=fi
 if st.button(f"Convert {file.name}"):
             buffer = BytesIO()
             if conversion_type == "CSV":
-                df.to.csv(buffer, index=False)
+                df.to_csv(buffer, index=False)
                 file_name = file.name.replace(file_ext, ".csv")
                 mime_type = "text/csv"
 
